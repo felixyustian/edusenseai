@@ -273,6 +273,3 @@ Pull requests are welcome! Please open an issue first to discuss what you would 
 
 ---
 
-<p align="center">
-  Built with ❤️ using <strong>Claude AI</strong> + <strong>React</strong> + <strong>FastAPI</strong>
-</p>
