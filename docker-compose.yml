@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  # ── FastAPI Backend ────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: edusenseai-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - SECRET_KEY=${SECRET_KEY:-edusenseai-secret}
+      - DATABASE_URL=sqlite:///./edusenseai.db
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    volumes:
+      - ./backend:/app
+      - db_data:/app/data
+    networks:
+      - edusenseai-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── React Frontend (dev) ──────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: edusenseai-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - edusenseai-net
+
+networks:
+  edusenseai-net:
+    driver: bridge
+
+volumes:
+  db_data:
